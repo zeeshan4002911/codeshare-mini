@@ -1,0 +1,21 @@
+:host {
+  .navbar-brand {
+    font-family: monospace;
+  }
+
+  .btn-theme {
+    border-radius: 100%;
+    transform: scale(0.8);
+
+    &-light {
+      background-color: white !important;
+      color: #343a40 !important;
+    }
+
+    &-dark {
+      color: white !important;
+      background-color: #343a40 !important;
+    }
+  }
+
+}

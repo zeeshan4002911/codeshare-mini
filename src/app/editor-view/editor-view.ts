@@ -32,6 +32,13 @@ export class EditorView implements AfterViewInit, OnDestroy {
       if (this.editor) {
         monaco.editor.setModelLanguage(this.editor.getModel()!, language['id']);
       }
+    });
+    this._appInit.appAction$.pipe(takeUntil(this._destroy)).subscribe((action) => {
+      switch(action) {
+        case "format-code":
+          if (this.editor) this.editor.getAction('editor.action.formatDocument')?.run();
+          break;
+      }
     })
   }
 

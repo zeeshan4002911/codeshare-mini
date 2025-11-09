@@ -8,7 +8,7 @@
       <span class="d-flex align-items-center pe-1">
         <div class="dropdown px-2">
           <button 
-            class="btn dropdown-header dropdown-toggle p-1" 
+            class="btn dropdown-header dropdown-toggle p-1 " 
             type="button" 
             data-bs-toggle="dropdown" 
             aria-expanded="false"
@@ -17,7 +17,10 @@
           </button>
           <ul class="dropdown-menu w-100">
             @for (language of languages; track language['id']) {
-              <li class="dropdown-item text-truncate" (click)="selectLanguage(language)">
+              <li 
+                class="dropdown-item text-truncate cursor-pointer" 
+                (click)="selectLanguage(language)"
+              >
                 {{language?.['aliases']?.[0] || (language['id'] | titlecase) }}
               </li>
             }
@@ -30,7 +33,7 @@
             'btn-theme-dark': themeMode == 'light', 
             'btn-theme-light': themeMode == 'dark'
           }" 
-          (click)="formatHandler()"
+          (click)="this.moreOptionHanlder('format-code')"
           data-bs-toggle="tooltip"
           title="Formatter"
         >

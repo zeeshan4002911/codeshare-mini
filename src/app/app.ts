@@ -67,7 +67,7 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
   }
 
   public moreOptionHanlder(btnName: string) {
-
+    this._appInit.dispatchAction(btnName);
   }
 
   public selectLanguage(language: any) {

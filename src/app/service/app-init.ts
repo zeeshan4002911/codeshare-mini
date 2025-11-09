@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import * as monaco from 'monaco-editor';
 
 @Injectable({
@@ -20,6 +20,9 @@ export class AppInit {
   );
   selectedLanguage$ = this.selectedLanguageSubject.asObservable();
 
+  private appActionSubject = new Subject();
+  appAction$ = this.appActionSubject.asObservable();
+
   constructor() {
     this.languages = monaco.languages.getLanguages();
   }
@@ -30,5 +33,9 @@ export class AppInit {
 
   setEditorLanguage(language: any) {
     this.selectedLanguageSubject.next(language);
+  }
+
+  dispatchAction(actionName: string) {
+    this.appActionSubject.next(actionName);
   }
 }

@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "codeshare-mini": {
+    "codecrack": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -61,10 +61,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "codeshare-mini:build:production"
+              "buildTarget": "codecrack:build:production"
             },
             "development": {
-              "buildTarget": "codeshare-mini:build:development"
+              "buildTarget": "codecrack:build:development"
             }
           },
           "defaultConfiguration": "development"

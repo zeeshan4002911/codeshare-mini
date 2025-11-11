@@ -1,59 +1,45 @@
-# CodeshareMini
+# codecrack
+
+A lightweight, web-based mini IDE built on top of Monaco Editor. This app provides essential features for a streamlined development experience, including an editor, formatter, and diff checker. It's designed to help developers write, format, and compare code effortlessly without the overhead of a full IDE.
+
+## Features
+
+- Monaco Editor Integration: A fast, feature-rich code editor providing syntax highlighting, autocompletion, and IntelliSense for various languages.
+
+- Code Formatter: Automatically formats your code to follow standard conventions, ensuring consistency and readability.
+
+- Diff Checker: Compare different versions of your code or compare two files to identify differences with an easy-to-read side-by-side diff viewer. (Coming soon)
+
+## Future Scope
+
+The application planned future enhancements include:
+
+- Git Integration: Seamlessly connect to Git repositories to pull, commit, push, and track changes directly within the IDE.
+
+- Compiler Integration: Support for compiling code directly from the app, allowing you to run and test your code in various programming languages.
+
+## Getting Started
+### Prerequisites
+
+* A modern web browser (Chrome, Firefox, or Safari)
+
+* Basic knowledge of the programming language you are using
+
+### Installation
+
+1. Clone this repository to your local machine:
+> git clone https://github.com/zeeshan4002911/codecrack.git
+
+2. Navigate to the project directory:
+> cd codecrack
+
+3. Install dependencies:
+> npm install
+
+4. Start the development server:
+> npm start
+
+Now open your browser and visit http://localhost:3000
 
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.3.9.
-
-## Development server
-
-To start a local development server, run:
-
-```bash
-ng serve
-```
-
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
-
-## Code scaffolding
-
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
-
-```bash
-ng generate component component-name
-```
-
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+And then later Vite gets Added added for development, version 7.2.2 with @analogjs/vite-plugin-angular version 2.0.3.

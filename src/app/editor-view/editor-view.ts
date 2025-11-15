@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnDestroy } from '@angular/core';
+import { AfterViewInit, Component, HostListener, OnDestroy } from '@angular/core';
 import * as monaco from 'monaco-editor';
 import { FormsModule } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
@@ -14,9 +14,13 @@ import { AppInit } from '@/service/app-init';
 export class EditorView implements AfterViewInit, OnDestroy {
   private _destroy: Subject<boolean> = new Subject<boolean>();
 
-  themeMode: string | undefined = 'light';
-
-  editorOptions = { theme: 'vs', language: 'javascript' };
+  editorOptions = {
+    theme: 'vs',
+    language: 'javascript',
+    automaticLayout: true,
+    scrollBeyondLastLine: true,
+    wordWrap: true // For toggling the word wrap 'on' & 'off'
+  };
   code: string = 'function x() {\n\tconsole.log("Hello world 😺!");\n}';
   editor: monaco.editor.IStandaloneCodeEditor | null = null;
 
@@ -24,10 +28,10 @@ export class EditorView implements AfterViewInit, OnDestroy {
     private _appInit: AppInit
   ) {
     this._appInit.themeMode$.pipe(takeUntil(this._destroy)).subscribe((themeMode) => {
-      this.themeMode = themeMode;
+      const isDarkMode = (themeMode == 'dark') ? true : false;
+      this.editorOptions.theme = isDarkMode ? 'vs-dark' : 'vs';
       if (this.editor) {
-        const isDarkMode = (themeMode == 'dark') ? true : false;
-        monaco.editor.setTheme(isDarkMode ? 'vs-dark' : 'vs');
+        monaco.editor.setTheme(this.editorOptions.theme);
         // monaco.editor.setTheme(isHighContrast && isDarkMode ? 'hc-black' : 'hc-light');
       }
     });
@@ -37,53 +41,68 @@ export class EditorView implements AfterViewInit, OnDestroy {
       }
     });
     this._appInit.appAction$.pipe(takeUntil(this._destroy)).subscribe((action) => {
+      if (!this.editor) {
+        console.error("Editor doesn't exists to perform action");
+        return;
+      }
       switch (action) {
         case "format-code":
-          if (this.editor) this.editor.getAction('editor.action.formatDocument')?.run();
+          this.editor.getAction('editor.action.formatDocument')?.run();
           break;
         case "scroll-to-top":
-          if (this.editor) this.editor.setScrollPosition({ scrollTop: 0 });
+          this.editor.setScrollPosition({ scrollTop: 0 });
           break;
         case "scroll-to-bottom":
-          if (this.editor) {
-            const lineCount = this.editor.getModel()?.getLineCount();
-            this.editor.revealLine(lineCount ?? 0);
-          }
+          const lineCount = this.editor.getModel()?.getLineCount();
+          this.editor.revealLine(lineCount ?? 0);
           break;
         case "undo":
-          if (this.editor) this.editor.trigger('undo-button', 'undo', null);
+          this.editor.trigger('undo-button', 'undo', null);
           break;
         case "redo":
-          if (this.editor) this.editor.trigger('undo-button', 'redo', null);
+          this.editor.trigger('undo-button', 'redo', null);
           break;
         case "font-up":
-          if (this.editor) {
-            const currentFontSize = this.editor.getRawOptions().fontSize ?? 14;
-            this.editor.updateOptions({ fontSize: currentFontSize + 2 });
-          }
+          const currFS_1 = this.editor.getRawOptions().fontSize ?? 14;
+          this.editor.updateOptions({ fontSize: currFS_1 + 2 });
+
           break;
         case "font-down":
-          if (this.editor) {
-            const currentFontSize = this.editor.getRawOptions().fontSize ?? 14;
-            this.editor.updateOptions({ fontSize: Math.max(6, currentFontSize - 2) });
-          }
+          const currFS_2 = this.editor.getRawOptions().fontSize ?? 14;
+          this.editor.updateOptions({ fontSize: Math.max(6, currFS_2 - 2) });
           break;
         case "clear-all":
-          if (this.editor) this.editor.getModel()?.setValue('');
+          // Triggering undo stack and executing edit to empty editor
+          this.editor.pushUndoStop();
+          this.editor.executeEdits(
+            'clear-all',
+            [
+              {
+                range: this.editor.getModel()!.getFullModelRange(),
+                text: '',
+                forceMoveMarkers: true
+              }
+            ]
+          )
+          this.editor.pushUndoStop();
           break;
         case "json-compression":
-          if (this.editor) {
-            const jsonContent = this.editor.getValue();
-            try {
-              const jsonObject = JSON.parse(jsonContent);
-              const minifiedJson = JSON.stringify(jsonObject);
-              this.editor.setValue(minifiedJson);
-              // Setting the monaco language as json to have highlight in string
-              monaco.editor.setModelLanguage(this.editor.getModel()!, 'json');
-            } catch (error) {
-              console.error("Invalid JSON:", error);
-            }
+          const jsonContent = this.editor.getValue();
+          try {
+            const jsonObject = JSON.parse(jsonContent);
+            const minifiedJson = JSON.stringify(jsonObject);
+            this.editor.setValue(minifiedJson);
+            // Setting the monaco language as json to have highlight in string
+            monaco.editor.setModelLanguage(this.editor.getModel()!, 'json');
+          } catch (error) {
+            console.error("Invalid JSON:", error);
           }
+          break;
+        case "word-wrap-toggle":
+          this.editorOptions.wordWrap = !this.editorOptions.wordWrap;
+          this.editor.updateOptions({
+            wordWrap: this.editorOptions.wordWrap ? 'on' : 'off'
+          })
           break;
         default:
           console.warn("No such action exists", action);
@@ -92,18 +111,30 @@ export class EditorView implements AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit(): void {
-    const isDarkMode = (this.themeMode == 'dark') ? true : false;
     this.editor = monaco.editor.create(document.getElementById('monaco-container')!, {
       value: this.code,
       language: this.editorOptions.language,
-      automaticLayout: true,
-      theme: (isDarkMode) ? 'vs-dark' : 'vs'
+      automaticLayout: this.editorOptions.automaticLayout,
+      scrollBeyondLastLine: this.editorOptions.scrollBeyondLastLine,
+      wordWrap: this.editorOptions.wordWrap ? 'on' : 'off',
+      theme: this.editorOptions.theme
     })
+  }
+
+  @HostListener('window:keydown', ['$event'])
+  handleKeyboardEvent(event: KeyboardEvent) {
+    // Toggle word wrap on Alt + Z key combination
+    if (event.altKey && event.key.toLowerCase() == 'z' && !event.shiftKey) {
+      this.editorOptions.wordWrap = !this.editorOptions.wordWrap;
+      if (this.editor)
+        this.editor.updateOptions({
+          wordWrap: this.editorOptions.wordWrap ? 'on' : 'off'
+        })
+    }
   }
 
   ngOnDestroy(): void {
     this._destroy.next(false);
     this._destroy.complete();
-    this.themeMode = undefined;
   }
 }

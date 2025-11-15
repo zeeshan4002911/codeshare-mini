@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, OnDestroy, OnInit, TemplateRef, ViewChild } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { AppInit } from './service/app-init';
@@ -111,6 +111,19 @@ export class App implements OnInit, AfterViewInit, OnDestroy {
   // Handler for Bootstrap Modal and Toast open
   openModal = () => (this.bModal) ? this.bModal.show() : null;
   openToast = () => (this.bToast) ? this.bToast.show() : null;
+
+  // Hide popover once any any click happen outside the content of it
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event) {
+    if (this.popoverInstance) {
+      const targetElement = event.target as HTMLElement;
+      const isInisdePopover = document.querySelector('.popover-content')?.contains(targetElement);
+
+      if (!isInisdePopover) {
+        this.popoverInstance.hide();
+      }
+    }
+  }
 
   ngOnDestroy(): void {
     this._destroy.next(false);
